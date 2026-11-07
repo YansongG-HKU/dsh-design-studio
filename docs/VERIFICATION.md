@@ -247,3 +247,30 @@ pwsh -File _tools\capture-dsh-window.ps1 -Out _artifacts\design-studio\gui-panel
 - 向导与 intake 卡为组件级 Chromium 渲染截图；活体 HTTP/工具链已逐项验证（上述），但"活体点击向导并粘贴"未执行（避免在用户当前窗口创建额外项目/切走会话）。
 - 桌面窗口重载后 DSH 侧栏的「设计台」图标可见性回到默认隐藏（DSH 侧栏插件图标是用户级显示设置；可在侧栏「更多 → 设计台 → 显示」重新显示）——与本插件功能无关，已实测面板/路由/工具全部正常。
 - 其余限制同 v1.2（剪贴板交接需一次 Ctrl+V、PPTX 结构校验、非 PNG 参考图、DOM 编辑、桌面 token 门禁）。
+
+---
+
+## 十三、GitHub 发布与 CI（v1.3.0，2026-11-08）
+
+- 仓库：<https://github.com/YansongG-HKU/dsh-design-studio>（public，默认分支 `main`，MIT）。
+- 首次推送：`27d3c1e`（81 files, 45,081 insertions）；随后修复 3 次 CI 暴露的问题：`7dd1819`、`37c695a`，并打 annotated tag `v1.3.0`。
+- GitHub Actions（`.github/workflows/ci.yml`，ubuntu-latest + Node 22）三次运行：
+  - `42407184989` **failure**：单元测试 2 处失败 —— `awaitJob` 的 `setInterval` 被 `unref()`（工具调用挂起时 Node 认为事件循环已空，Linux/Node 22 下 Promise 永不落地）；`writeScaffold` 在 POSIX 上把 `..\escape.html` 当合法文件名（反斜杠未归一化）。
+  - `42407314709` **failure**：上述两项修复后单元测试全绿；集成测试断言写死 `chrome.exe`，在 Linux 的 `/usr/bin/google-chrome` 上失败。
+  - `42407757887` **success**：所有步骤绿 —— client freshness、270 单元测试、9 集成测试（真实 Chrome，ubuntu）。
+- 修复内容（均为真实缺陷，不只是 CI 适配）：
+  - `awaitJob` 不再 unref 轮询定时器：`design_check` 在安静运行时不会再"Promise pending 但事件循环已空"。
+  - `writeScaffold` 在所有平台把 `\` 视为路径分隔符：Windows 风格目录穿越在 POSIX 也会被拒绝。
+  - `findBrowser` 增加 macOS/Linux 常见 Chrome/Chromium/Edge 路径（`/usr/bin/google-chrome`、`/snap/bin/chromium`、`/Applications/...` 等），仍支持 `DESIGN_STUDIO_BROWSER` 覆盖。
+- 本地复核（Windows，Node 24.14.1）：`270/270` 单元、`9/9` 集成（browser 8 + e2e 1，`a=96 b=50`）、`client.js` freshness 通过。
+
+### 可复现步骤
+
+```bash
+cd dsh-design-studio
+npm run check            # node --check index.js + build-client --check（8 fragments, 466,536 B）
+npm test                 # 270 unit tests
+npm run test:integration # 9 integration tests（真实 Chrome；DESIGN_STUDIO_BROWSER 可指定路径）
+```
+
+CI 等价于依次执行以上三步（`.github/workflows/ci.yml` 中集成步骤动态解析 Chrome 路径）。

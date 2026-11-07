@@ -1,5 +1,7 @@
 # 设计台（dsh-design-studio）
 
+[![CI](https://github.com/YansongG-HKU/dsh-design-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/YansongG-HKU/dsh-design-studio/actions/workflows/ci.yml)
+
 一个装在 DeepSeek Harness 里的设计工作台：用真实 HTML 做画布，用真实无头浏览器做质检，产出可以直接交接的代码。它是 Claude Design 能力在 DSH 原生的实现——不是模仿截图，而是把「开始与提问 → 语境采集 → 三档变体 → 画布编辑 → 质量门禁 → 导出」这条工作流做成 11 个 agent 工具、一组本地 HTTP 路由和一个侧边栏面板。
 
 - 包名 / loader 行 / 客户端模块 id：`dsh-design-studio`
