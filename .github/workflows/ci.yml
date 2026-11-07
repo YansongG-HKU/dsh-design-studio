@@ -25,6 +25,7 @@ jobs:
         run: npm test
 
       - name: Integration tests (real Chrome)
-        env:
-          DESIGN_STUDIO_BROWSER: /usr/bin/google-chrome
-        run: npm run test:integration
+        run: |
+          export DESIGN_STUDIO_BROWSER="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          echo "browser=$DESIGN_STUDIO_BROWSER"
+          npm run test:integration
