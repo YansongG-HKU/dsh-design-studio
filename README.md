@@ -373,7 +373,7 @@ v1.3 冻结验证：单元测试 **270/270** 通过（`client.test.mjs` 38、`br
 
 ## 已知限制
 
-- 质检与导出依赖本机 Chrome/Edge；没有浏览器时 `design_check` 返回 `no_browser` 并给出修复建议，Host 仍可正常激活。
+- 质检与导出依赖本机 Chrome/Edge/Chromium；Windows 自动发现常见安装路径，macOS/Linux 也可用 `DESIGN_STUDIO_BROWSER` 指定可执行文件。没有浏览器时 `design_check` 返回 `no_browser` 并给出修复建议，Host 仍可正常激活。
 - PPTX 是图片型幻灯片，不是可编辑文本框；需要可编辑版式时用 deck HTML + 打印 PDF，或后续接入 OOXML 富文本。
 - 有 DOM 图层树、拖拽/缩放/对齐与浮动工具条，但没有 Figma 式对象模型、约束系统与组件实例；所有编辑直接作用于真实 DOM（这是有意的取舍）。
 - 编辑是「即时预览 + 保存序列化」：画布里的改动立刻可见、可撤销，但只有点保存（或 agent 直接写文件）才落盘；没有 v0 式独立 Apply 步骤，保存边界就是应用边界。

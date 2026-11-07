@@ -150,7 +150,8 @@ test('findBrowser reports a usable executable, or the run is skipped', (t) => {
     return
   }
   assert.equal(typeof browser.path, 'string')
-  assert.match(browser.path, /(chrome|msedge)\.exe$/iu)
+  const executable = browser.path.split(/[\\/]/u).pop().toLowerCase()
+  assert.match(executable, /chrome|chromium|msedge|^edge$/u)
   t.diagnostic('browser: ' + browser.path + ' (source: ' + browser.source + ')')
 })
 
