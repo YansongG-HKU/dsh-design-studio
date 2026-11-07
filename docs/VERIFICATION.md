@@ -274,3 +274,49 @@ npm run test:integration # 9 integration tests（真实 Chrome；DESIGN_STUDIO_B
 ```
 
 CI 等价于依次执行以上三步（`.github/workflows/ci.yml` 中集成步骤动态解析 Chrome 路径）。
+
+---
+
+## 十四、v1.3.1 发布门禁、真实浏览器 e2e 与兼容性修复（2026-11-08）
+
+v1.3.1 只做发布工程、测试与一处客户端兼容性修复；工具、路由、数据目录结构不变。
+
+### 1. 修复：host 题库与客户端答案键不一致
+
+- host 问题库（`lib/intake.js`）用 `variationDimensions` / `variationRange`（选项为中文标签），客户端 `answersToIntake` 只读 fallback 题库的 `dimensions` / `range`（0–100 滑杆）。真实面板使用 host 题库时，向导答案的「变体维度 / 跨度」会被静默丢弃；「补问」预填也对不上。
+- 修复（`src/client/00-head.js`）：`answersToIntake` 同时接受两套 id；跨度在中文选项、数值与 `basic/balanced/avant-garde` 之间归一；`toggle`/`toggles` 归一后去重；`answersFromIntake` 同时输出两套 id，补问预填在两种题库下都正确。由真实浏览器 e2e 的反例发现，并由 `client.test.mjs` 新用例覆盖。
+
+### 2. 新增：真实浏览器 e2e（向导 → 交接 → 活体 design_check）
+
+`test/integration/wizard-handoff.test.mjs` + `test/fixtures/e2e/wizard-harness.html`：
+
+- 临时 loopback HTTP 服务器同时服务 harness、`client.js` 与真实面板路由（`registerPanel` + fake webServer + 临时 store + 真实 service / browser pool）。
+- 真实 headless Chrome 用 ModuleLoader + fake React 载入 **shipped `client.js`**，取真实 `__test__` 向导 helpers，并从 `GET /api/intake/questions` 取 **host 真实题库**（6 组）。
+- 真实 DOM 点击完成 6 步（chips / multiselect / `Input.insertText` / Next ×6 / Finish），委派 1 个必答 + 留空 1 个可选项。
+- Finish 使用生产 `wizardReduce → validateWizardStep → collectOpenQuestions → answersToBrief → answersToIntake → buildStartPrompt → handoffPlan`，真实 `POST /api/projects`；断言 clipboard === prompt、已确认信息/追问项/流程指令、`layout.selectPanel(null)`、toast 精确文案、intake 持久化（含 `variations.dimensions` 与 `variations.range`）。
+- 「粘贴」：从 prompt 解析 projectId，写入 `good.html` 三档变体，跑真实 `design_check`，断言 **3 × 96 / A**。
+- 实测：本机 Windows/Node 24.14.1 两次运行均通过（约 14 s）；`npm run test:integration` 全量 **10 / 10**。
+
+覆盖边界（诚实标注）：e2e 承载的是 shipped client 的**向导状态机 + 真实问题库 + 真实面板路由 + 真实 Chrome 点击**，不实例化 DSH 的 React 视图层（测试环境不可用）；视图渲染由单元测试与渲染冒烟覆盖。
+
+### 3. 新增：Release workflow 与产物校验
+
+- `.github/workflows/release.yml`：`push: tags: ['v*']` 触发；`npm run check` → `npm test` → `npm run test:integration`（动态解析 Chrome）→ `node scripts/verify-release.mjs --tag "$GITHUB_REF_NAME"` → 上传 `release-report.json` + `client.js`；任一步失败即阻断。
+- `scripts/verify-release.mjs`（13 项检查）：tag ↔ package version、annotated tag、tag commit = HEAD、tag commit 在 `origin/main`、service/client 版本常量、生成物一致性、必需文件清单、发布说明存在、package/locale JSON、cordis patch、npm pack 内容边界、密钥模式扫描；输出机器可读报告。
+- `docs/RELEASE-v1.3.0.md` / `docs/RELEASE-v1.3.1.md`：GitHub Release notes（不发布 npm）。
+
+### 4. 验收（v1.3.1 本地）
+
+| 项 | 结果 |
+|---|---|
+| `npm run check` | 通过（`client.js` 与 8 fragments 同步） |
+| `npm test` | **271 / 271**（client 39） |
+| `npm run test:integration` | **10 / 10**（含向导 e2e，三变体 96 / A） |
+| `node scripts/verify-release.mjs --tag v1.3.1` | 在 tag 上 **13 / 13**，report `ok: true` |
+| Release workflow | tag 推送后在 GitHub Actions 复跑同一门禁（见运行记录） |
+
+### 5. 限制
+
+- e2e 不实例化 React 视图层；交接仍需真实用户一次 Ctrl+V（DSH 主区域互斥的设计）。
+- 未发布 npm（仓库 `private: true`）；CI 平台为 Ubuntu + Node 22，Windows 为主验收平台，macOS 未实测。
+- 精确 96/A 依赖 headless Chrome 计算样式；本机 Chrome 117 与 CI Chrome 156 走同一套审计规则。

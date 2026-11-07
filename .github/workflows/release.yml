@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history + tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Fetch main for tag ancestry check
+        run: git fetch --no-tags origin main
+
+      - name: Client artifact freshness
+        run: npm run check
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Integration tests (real Chrome)
+        run: |
+          export DESIGN_STUDIO_BROWSER="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          echo "browser=$DESIGN_STUDIO_BROWSER"
+          npm run test:integration
+
+      - name: Verify release artifacts (blocks the release on failure)
+        run: node scripts/verify-release.mjs --tag "$GITHUB_REF_NAME" --report release-report.json
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ github.ref_name }}
+          path: |
+            release-report.json
+            client.js
+          if-no-files-found: error
+          retention-days: 7

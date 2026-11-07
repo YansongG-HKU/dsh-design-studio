@@ -827,6 +827,34 @@ test('answers map into brief and the intake schema, and back', () => {
   assert.equal(answersToIntake({ goal: 'x' }, {}).variations.count, 3)
 })
 
+test('answersToIntake / answersFromIntake bridge host-bank ids and option labels', () => {
+  const { module } = boot()
+  const { answersToIntake, answersFromIntake, fallbackIntakeGroups } = module.__test__
+  const hostAnswers = {
+    kind: 'web',
+    goal: '港口值班台',
+    audience: 'B2B 港务',
+    contextSources: ['existing-design-system'],
+    variationsCount: '3',
+    variationDimensions: ['visual', 'layout'],
+    variationRange: '规则→前卫',
+    tweaks: ['toggle', 'toggles', 'color'],
+    deliverables: ['html'],
+  }
+  const intake = answersToIntake(hostAnswers, { groups: fallbackIntakeGroups(), now: '2026-11-08T00:00:00.000Z', delegated: [] })
+  assert.deepEqual(plain(intake.variations), { count: 3, dimensions: ['visual', 'layout'], range: 'balanced' })
+  assert.deepEqual(plain(intake.tweaks), ['toggle', 'color'])
+  const back = answersFromIntake(intake)
+  assert.deepEqual(plain(back.variationDimensions), ['visual', 'layout'])
+  assert.deepEqual(plain(back.dimensions), ['visual', 'layout'])
+  assert.equal(back.variationRange, '规则→前卫')
+  assert.equal(back.range, 50)
+  // The fallback bank's numeric slider maps to the same canonical labels.
+  assert.equal(answersToIntake({ goal: 'x', range: 15 }).variations.range, 'basic')
+  assert.equal(answersToIntake({ goal: 'x', range: 90 }).variations.range, 'avant-garde')
+  assert.equal(answersToIntake({ goal: 'x' }).variations.range, 'balanced')
+})
+
 test('intake merge, completeness and summary groups', () => {
   const { module } = boot()
   const { mergeIntake, intakeCompleteness, intakeSummaryGroups, makeT } = module.__test__

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>设计台 · 6 步向导 E2E 夹具</title>
+<style>
+  :root { --paper: #f7f4ed; --surface: #fdfbf6; --ink: #1e1c18; --muted: #6f685e; --line: #e2dccf; --accent: #b4552f; --ok: #2f6b4f; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 13px/1.6 "Segoe UI", "Microsoft YaHei", sans-serif; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 24px 20px 60px; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 11.5px; margin-bottom: 16px; }
+  .frame { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .head { padding: 12px 16px 10px; border-bottom: 1px solid var(--line); }
+  .bar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font: 11px/1 ui-monospace, Consolas, monospace; color: var(--muted); }
+  .track { flex: 1; height: 4px; border-radius: 999px; background: var(--line); overflow: hidden; }
+  .fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width .15s ease; }
+  .title { font-size: 17px; margin: 0; }
+  .body { padding: 14px 16px; display: flex; flex-direction: column; gap: 13px; min-height: 280px; }
+  .q { display: flex; flex-direction: column; gap: 5px; }
+  .qhead { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .qlabel { font-weight: 600; font-size: 12px; }
+  .req { font-size: 9px; color: var(--accent); }
+  .delegated { font-size: 9.5px; color: var(--ok); }
+  .hint { font-size: 10.5px; color: var(--muted); margin: 0; }
+  .chips { display: flex; gap: 5px; flex-wrap: wrap; }
+  .chip { height: 28px; padding: 0 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font-size: 11.5px; cursor: pointer; }
+  .chip:hover { border-color: var(--accent); }
+  .chip[data-active="true"] { border-color: var(--accent); background: rgba(180, 85, 47, .1); color: var(--accent); }
+  .delegate { height: 22px; padding: 0 7px; border: 1px dashed var(--line); border-radius: 5px; background: transparent; color: var(--muted); font-size: 10px; cursor: pointer; }
+  .delegate:hover { color: var(--accent); border-color: var(--accent); }
+  textarea.field, input.field { width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 8px 9px; font: inherit; color: inherit; outline: none; }
+  textarea.field { min-height: 64px; resize: vertical; }
+  textarea.field:focus, input.field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(180, 85, 47, .12); }
+  .foot { display: flex; align-items: center; gap: 7px; padding: 10px 16px; border-top: 1px solid var(--line); background: #f1ece1; flex-wrap: wrap; }
+  .grow { flex: 1; }
+  .missing { font-size: 10.5px; color: #8a5a12; }
+  .btn { height: 30px; padding: 0 11px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--ink); font-size: 11.5px; cursor: pointer; }
+  .btn:hover { border-color: var(--accent); }
+  .btn[data-primary="true"] { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .result { margin-top: 14px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); font: 11px/1.6 ui-monospace, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .toast { margin-top: 8px; font-size: 11.5px; color: var(--ok); min-height: 16px; }
+  .note { margin-top: 10px; font-size: 10.5px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>设计台 · 6 步开始向导（E2E 夹具）</h1>
+  <div class="sub">真实 client.js __test__ helper + 真实 /api/intake/questions + 真实 POST /api/projects；无框架，全部点击走 DOM。</div>
+  <div class="frame">
+    <div class="head">
+      <div class="bar"><span id="progress">第 1 / 6 步</span><div class="track"><div class="fill" id="fill" style="width:17%"></div></div><span id="pct">17%</span></div>
+      <h2 class="title" id="step-title">加载中…</h2>
+    </div>
+    <div class="body" id="fields"></div>
+    <div class="foot">
+      <button class="btn" type="button" id="back" data-action="back">上一步</button>
+      <button class="btn" type="button" id="skip" data-action="skip-step">不知道，让 Claude 决定</button>
+      <span class="grow"></span>
+      <span class="missing" id="missing"></span>
+      <button class="btn" type="button" id="next" data-action="next">下一步</button>
+      <button class="btn" type="button" id="finish" data-action="finish" data-primary="true" disabled>创建并去对话</button>
+    </div>
+  </div>
+  <div class="result" id="result">waiting for wizard…</div>
+  <div class="toast" id="toast"></div>
+  <div class="note">本页只用于集成测试：Finish 后写入 window.__WIZARD__，供 test/integration/wizard-handoff.test.mjs 断言。</div>
+</div>
+
+<script>
+  window.__ModuleLoader__ = {
+    load(definition) { window.__DEF__ = definition }
+  }
+  window.__CLIPBOARD__ = {
+    text: '',
+    async writeText(value) { this.text = String(value || ''); return undefined }
+  }
+  try {
+    Object.defineProperty(window.navigator, 'clipboard', { value: window.__CLIPBOARD__, configurable: true })
+  } catch (error) {
+    window.navigator.clipboard = window.__CLIPBOARD__
+  }
+</script>
+<script src="/client.js"></script>
+<script>
+  ;(async function () {
+    'use strict'
+    const script = window.__DEF__
+    if (!script || typeof script.factory !== 'function') {
+      window.__READY__ = false
+      window.__READY_ERROR__ = 'client.js did not register with window.__ModuleLoader__'
+      return
+    }
+    // The wizard only needs the pure helper exports, so a minimal fake React is enough.
+    const fakeReact = {
+      createElement: function () { return null },
+      Fragment: 'fragment',
+      useState: function (initial) { return [typeof initial === 'function' ? initial() : initial, function () {}] },
+      useEffect: function () {},
+      useRef: function () { return { current: null } },
+      useCallback: function (fn) { return fn },
+      useMemo: function (fn) { return fn() },
+    }
+    const moduleExports = script.factory(function (name) {
+      if (name !== 'react') throw new Error('unexpected require: ' + name)
+      return fakeReact
+    })
+    const W = moduleExports.__test__
+    if (!W || typeof W.wizardReduce !== 'function' || typeof W.buildStartPrompt !== 'function') {
+      window.__READY__ = false
+      window.__READY_ERROR__ = 'client.js __test__ is missing the wizard helpers'
+      return
+    }
+    const t = W.makeT('zh')
+    const layout = { calls: [], selectPanel(value) { this.calls.push(value) } }
+    let groups = W.fallbackIntakeGroups()
+    let source = 'fallback'
+    try {
+      const response = await fetch('/dsh-design-studio/api/intake/questions', { headers: { 'x-dsh-design-studio': '1' } })
+      const payload = await response.json()
+      if (response.ok && payload && payload.ok && Array.isArray(payload.groups) && payload.groups.length > 0) {
+        groups = W.normalizeIntakeGroups(payload.groups)
+        source = 'host'
+      }
+    } catch (error) {
+      source = 'fallback'
+    }
+    const total = groups.length
+    let state = { step: 0, answers: {}, delegated: [] }
+    const questionText = (question) => W.questionText(question, t)
+    const optionList = (question) => W.questionOptions(question, t)
+    const el = (id) => document.getElementById(id)
+    const optionValue = (option) => (option && typeof option === 'object' ? option.value : String(option))
+
+    function currentGroup() { return groups[Math.max(0, Math.min(state.step, total - 1))] }
+    function currentQuestions() { return (currentGroup() && currentGroup().questions) || [] }
+    function allQuestions() { return W.wizardAllQuestions(groups) }
+
+    function answer(id, value) {
+      state = W.wizardReduce(state, { type: 'answer', id, value })
+      render()
+    }
+    function toggleMulti(id, value) {
+      const current = Array.isArray(state.answers[id]) ? state.answers[id].slice() : []
+      const index = current.indexOf(value)
+      if (index === -1) current.push(value)
+      else current.splice(index, 1)
+      answer(id, current)
+    }
+    function delegate(id) {
+      state = W.wizardReduce(state, { type: 'delegate', id })
+      render()
+    }
+    function goNext() {
+      state = W.wizardReduce(state, { type: 'next', total })
+      render()
+    }
+    function goBack() {
+      state = W.wizardReduce(state, { type: 'back' })
+      render()
+    }
+    function skipStep() {
+      state = W.wizardReduce(state, { type: 'skipStep', questions: currentQuestions() })
+      render()
+    }
+
+    function chip(label, active, onClick, attrs) {
+      const button = document.createElement('button')
+      button.type = 'button'
+      button.className = 'chip'
+      button.dataset.active = active ? 'true' : 'false'
+      button.textContent = label
+      Object.keys(attrs || {}).forEach((key) => { button.setAttribute(key, attrs[key]) })
+      button.addEventListener('click', onClick)
+      return button
+    }
+
+    function renderField(question, container) {
+      const block = document.createElement('div')
+      block.className = 'q'
+      const value = state.answers[question.id]
+      const delegated = state.delegated.indexOf(question.id) !== -1
+      const head = document.createElement('div')
+      head.className = 'qhead'
+      const label = document.createElement('span')
+      label.className = 'qlabel'
+      label.textContent = questionText(question)
+      head.appendChild(label)
+      if (question.required) {
+        const req = document.createElement('span')
+        req.className = 'req'
+        req.textContent = t('wizardRequired')
+        head.appendChild(req)
+      }
+      if (delegated) {
+        const mark = document.createElement('span')
+        mark.className = 'delegated'
+        mark.textContent = t('wizardDelegated')
+        head.appendChild(mark)
+      }
+      if (question.required && !W.answerIsSet(value) && !delegated) {
+        const delegateButton = document.createElement('button')
+        delegateButton.type = 'button'
+        delegateButton.className = 'delegate'
+        delegateButton.dataset.delegate = question.id
+        delegateButton.textContent = t('wizardSkipStep')
+        delegateButton.addEventListener('click', () => delegate(question.id))
+        head.appendChild(delegateButton)
+      }
+      block.appendChild(head)
+      const hint = W.questionText(question, t, 'hint')
+      if (hint) {
+        const hintEl = document.createElement('p')
+        hintEl.className = 'hint'
+        hintEl.textContent = hint
+        block.appendChild(hintEl)
+      }
+      const type = String(question.type || 'text')
+      if (type === 'multi' || type === 'multiselect' || type === 'checkbox-group') {
+        const chips = document.createElement('div')
+        chips.className = 'chips'
+        const selected = Array.isArray(value) ? value : []
+        optionList(question).forEach((option) => {
+          chips.appendChild(chip(option.label, selected.indexOf(optionValue(option)) !== -1, () => toggleMulti(question.id, optionValue(option)), { 'data-q': question.id, 'data-v': optionValue(option) }))
+        })
+        block.appendChild(chips)
+      } else if (type === 'single' || type === 'select' || type === 'kind' || type === 'radio' || type === 'range') {
+        const chips = document.createElement('div')
+        chips.className = 'chips'
+        optionList(question).forEach((option) => {
+          chips.appendChild(chip(option.label, value === optionValue(option), () => answer(question.id, optionValue(option)), { 'data-q': question.id, 'data-v': optionValue(option) }))
+        })
+        block.appendChild(chips)
+      } else if (type === 'boolean' || type === 'switch') {
+        block.appendChild(chip(String(value ? '是' : '否'), Boolean(value), () => answer(question.id, !value), { 'data-q': question.id, 'data-v': 'toggle' }))
+      } else {
+        const input = document.createElement(type === 'textarea' || type === 'long' ? 'textarea' : 'input')
+        input.className = 'field'
+        input.dataset.text = question.id
+        input.setAttribute('aria-label', questionText(question))
+        input.placeholder = hint || ''
+        input.value = value === undefined || value === null ? '' : String(value)
+        input.addEventListener('input', () => { state = W.wizardReduce(state, { type: 'answer', id: question.id, value: input.value }); updateMissingOnly() })
+        block.appendChild(input)
+      }
+      container.appendChild(block)
+    }
+
+    function updateMissingOnly() {
+      const missing = W.validateWizardStep(currentQuestions(), state.answers, state.delegated)
+      el('missing').textContent = missing.length > 0 ? t('wizardMissing', { n: missing.length }) : ''
+      const allMissing = W.validateWizardStep(allQuestions(), state.answers, state.delegated)
+      el('finish').disabled = allMissing.length > 0
+    }
+
+    function render() {
+      const group = currentGroup()
+      const step = Math.max(0, Math.min(state.step, total - 1))
+      const progress = Math.round(((step + 1) / total) * 100)
+      el('progress').textContent = t('wizardStepOf', { n: step + 1, total })
+      el('pct').textContent = progress + '%'
+      el('fill').style.width = progress + '%'
+      el('step-title').textContent = group && group.titleKey ? t(group.titleKey) : (group && group.title) || ''
+      const fields = el('fields')
+      fields.textContent = ''
+      currentQuestions().forEach((question) => renderField(question, fields))
+      updateMissingOnly()
+      el('back').disabled = step === 0
+      el('next').disabled = false
+      el('skip').disabled = false
+      window.__WIZARD_STATE__ = function () {
+        const missingAll = W.validateWizardStep(allQuestions(), state.answers, state.delegated)
+        return JSON.stringify({
+          step: step + 1,
+          total,
+          source,
+          answers: state.answers,
+          delegated: state.delegated,
+          missing: missingAll,
+          title: group && group.title,
+        })
+      }
+    }
+
+    // The shipped helpers accept both the host bank ids (variationDimensions /
+    // variationRange) and the fallback bank ids (dimensions / range) directly;
+    // no test-side aliasing is needed (or allowed).
+
+    async function finish() {
+      if (window.__WIZARD__ && window.__WIZARD__.finished) return
+      const missing = W.validateWizardStep(allQuestions(), state.answers, state.delegated)
+      if (missing.length > 0) {
+        el('result').textContent = 'blocked: ' + missing.length + ' required answers are neither answered nor delegated'
+        return
+      }
+      el('finish').disabled = true
+      try {
+        const openQuestions = W.collectOpenQuestions(groups, state.answers, state.delegated, t)
+        const answers = state.answers
+        const brief = W.answersToBrief(answers)
+        const intake = W.answersToIntake(answers, { groups, openQuestions, delegated: state.delegated, source: 'wizard' })
+        const response = await fetch('/dsh-design-studio/api/projects', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-dsh-design-studio': '1' },
+          body: JSON.stringify({ name: 'e2e 港口值班台', kind: intake.kind || 'web', scaffold: false, brief, intake })
+        })
+        const payload = await response.json()
+        if (!response.ok || !payload || payload.ok !== true || !payload.project) {
+          throw new Error('POST /api/projects failed: ' + (payload && payload.error ? payload.error : response.status))
+        }
+        const project = payload.project
+        const prompt = W.buildStartPrompt({ project, intake, openQuestions })
+        const plan = W.handoffPlan({ prompt, hasLayout: true })
+        await window.__CLIPBOARD__.writeText(prompt)
+        const toast = t(plan.toastKey)
+        layout.selectPanel(null)
+        window.__WIZARD__ = {
+          finished: true,
+          projectId: project.id,
+          project,
+          prompt,
+          clipboard: window.__CLIPBOARD__.text,
+          layoutCalls: layout.calls.slice(),
+          toast,
+          plan,
+          openQuestions,
+          intake,
+          brief,
+          groupsSource: source,
+        }
+        el('toast').textContent = toast
+        el('result').textContent = JSON.stringify({
+          projectId: project.id,
+          toast,
+          layoutCalls: layout.calls,
+          openQuestions,
+          promptLines: prompt.split('\n').length,
+        }, null, 2)
+      } catch (error) {
+        el('result').textContent = 'finish failed: ' + (error && error.message ? error.message : String(error))
+        el('finish').disabled = false
+      }
+    }
+
+    el('back').addEventListener('click', goBack)
+    el('next').addEventListener('click', goNext)
+    el('skip').addEventListener('click', skipStep)
+    el('finish').addEventListener('click', function () { void finish() })
+    window.__WIZARD_TEST__ = { client: W, groups, total, source, layout }
+    window.__READY__ = true
+    render()
+  })().catch(function (error) {
+    window.__READY__ = false
+    window.__READY_ERROR__ = String((error && error.stack) || error)
+  })
+</script>
+</body>
+</html>

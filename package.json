@@ -1,6 +1,6 @@
 {
   "name": "dsh-design-studio",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "private": true,
   "description": "设计台（Design Studio）：Claude Design 级别的设计能力移植到 DSH——Figma 级编辑器界面（三栏布局/图层树/浮动工具条/画板视图/命令面板/标尺参考线/深浅主题）、设计系统与语境采集、三档变体 HTML 设计、可视画布直接编辑、内联评论、Tweaks 实时调参、无障碍与对比度等质检评分、HTML/ZIP/PDF/PNG/PPTX 导出、版本管理。纯 Node，零第三方运行时依赖。",
   "license": "MIT",

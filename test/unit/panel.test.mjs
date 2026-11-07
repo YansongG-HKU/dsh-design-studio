@@ -91,7 +91,7 @@ function fakeService(overrides = {}) {
       },
     },
     async overview() {
-      return { version: '1.3.0', dataDir: '/data', browser: { available: true }, counts: { projects: 1, checked: 0, ready: 0 } }
+      return { version: '1.3.1', dataDir: '/data', browser: { available: true }, counts: { projects: 1, checked: 0, ready: 0 } }
     },
     async intakeQuestions() {
       return {
@@ -204,7 +204,7 @@ function fakeService(overrides = {}) {
       return { file: 'design/tweaks.html', bytes: 20 }
     },
     async diagnostics() {
-      return { version: '1.3.0', errors: [] }
+      return { version: '1.3.1', errors: [] }
     },
   }
   return { ...base, ...overrides }
@@ -326,7 +326,7 @@ test('dispatch serves the state, project and variants payloads', async () => {
   assert.equal(state.statusCode, 200)
   const stateBody = state.json()
   assert.equal(stateBody.ok, true)
-  assert.equal(stateBody.data.version, '1.3.0')
+  assert.equal(stateBody.data.version, '1.3.1')
   assert.equal(stateBody.data.projects.length, 1)
 
   const created = await call(service, { method: 'POST', url: '/dsh-design-studio/api/projects', headers: apiHeaders(), body: { name: '新设计', kind: 'web', brief: { goal: 'x' } } })
@@ -396,7 +396,7 @@ test('dispatch covers system, context, comments, tweaks, versions, exports and r
   const scaffold = await call(service, { method: 'POST', url: '/dsh-design-studio/api/projects/dsg-x/scaffold', headers: apiHeaders(), body: { id: 'tweaks' } })
   assert.equal(scaffold.json().file, 'design/tweaks.html')
   const diagnostics = await call(service, { url: '/dsh-design-studio/api/diagnostics', headers: apiHeaders() })
-  assert.equal(diagnostics.json().data.version, '1.3.0')
+  assert.equal(diagnostics.json().data.version, '1.3.1')
 })
 
 test('POST /brief saves the requirements brief over the same-origin gate', async () => {

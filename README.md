@@ -6,7 +6,7 @@
 
 - 包名 / loader 行 / 客户端模块 id：`dsh-design-studio`
 - 仓库：<https://github.com/YansongG-HKU/dsh-design-studio>
-- 版本 `1.3.0`（开始向导 + intake + 需求动线 + UI v2 编辑器），要求 Node.js ≥ 22、DSH ≥ 0.2.2-rc.1
+- 版本 `1.3.1`（开始向导 + intake + 需求动线 + UI v2 编辑器；含发布门禁与真实浏览器 e2e），要求 Node.js ≥ 22、DSH ≥ 0.2.2-rc.1
 - 纯 Node ESM，零第三方运行时依赖
 - 数据目录：`<DSH_HOME>/design-studio`（`DSH_HOME` 默认 `~/.dsh`）
 - 面板路由前缀：`/dsh-design-studio`，请求头 `x-dsh-design-studio: 1`
@@ -371,7 +371,7 @@ node --test test/unit/scaffolds.test.mjs
 
 `test/unit/scaffolds.test.mjs` 覆盖：10 个 id 的文档外壳（doctype / lang / title / inline style & script）、`EDITMODE` JSON 可解析且 3–6 个键、`__dsApplyTweaks`、编辑模式协议的监听器先于通告、零外部 http(s) 引用、deck 的屏幕标签与打印样式、poster/doc 的纸张尺寸、移动端设备尺寸与 44px 目标、`writeScaffold` 的写入/拒绝覆盖/强制覆盖/路径越界、以及 locale JSON、icon SVG、LICENSE 与文档资源。
 
-v1.3 冻结验证：单元测试 **270/270** 通过（`client.test.mjs` 38、`bridge.test.mjs` 38、新增 `intake.test.mjs` 8），真实浏览器集成 **9/9**（浏览器 8 + e2e 1，e2e 分数 a=96 b=50）；`node scripts/build-client.mjs --check` 校验 8 个客户端片段与 `client.js`（466,536 B）同步；活体安装 version `1.3.0`，`GET /api/state` 返回 version `1.3.0`，`GET /api/intake/questions` 返回 6 组 / 16 问，活体检查 96 A。v1.3 新增用例覆盖 intake 的规范化 / 增量合并 / 完整度 / 问题清单、向导 reducer / 校验 / 答案映射、开始 prompt、FlowStepper 首段「开始」、`design_intake` 两种模式、`POST /api/projects/:id/intake` 与 DESIGN.md 的 Intake 段。
+v1.3.1 冻结验证：单元测试 **271/271** 通过（`client.test.mjs` 39、`bridge.test.mjs` 38、新增 `intake.test.mjs` 8），真实浏览器集成 **10/10**（浏览器 8 + 全链路 e2e 1 + 向导→交接 e2e 1）；`node scripts/build-client.mjs --check` 校验 8 个客户端片段与 `client.js`（468,184 B）同步；`scripts/verify-release.mjs` 在 tag 上做 13 项产物校验（tag/版本/annotated/commit/main、生成物、文件清单、npm pack、密钥扫描等）。真实浏览器 e2e `wizard-handoff.test.mjs` 用 shipped `client.js` 的向导状态机 + 真实问题库 + 真实 `/api/projects` 走 6 步点击，断言交接 prompt/剪贴板/面板切换/toast，再从 prompt 解析 projectId、写入三档 `good.html` 并活体 `design_check` 断言三个变体 **96 / A**。v1.3.1 同时修复 host 问题库与客户端答案键不一致导致的「变体维度/跨度」丢失：`answersToIntake`/`answersFromIntake` 同时接受 `variationDimensions`/`variationRange` 与 `dimensions`/`range`，跨度在中文选项、0–100 滑杆与 canonical 标签之间归一，`toggle`/`toggles` 去重。发布：tag 推送触发 `.github/workflows/release.yml`（check → 单元 → 真实浏览器集成 → 产物校验 → artifact 上传，失败即阻断）；v1.3.0 Release notes 见 [docs/RELEASE-v1.3.0.md](./docs/RELEASE-v1.3.0.md)。
 
 ## 已知限制
 

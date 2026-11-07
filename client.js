@@ -20,7 +20,7 @@ window.__ModuleLoader__.load({
     const NS = "dsh-design-studio"
     const API_BASE = "/dsh-design-studio"
     const REQ_HEADER = "x-dsh-design-studio"
-    const VERSION = "1.3.0"
+    const VERSION = "1.3.1"
     const LANG_KEY = "dsh-design-studio.lang"
 
     // Canvas bridge (§5): inbound messages say "ds-canvas", outbound "ds-panel".
@@ -2032,7 +2032,7 @@ window.__ModuleLoader__.load({
                 { value: "spacing", labelKey: "optTweakSpacing" },
                 { value: "copy", labelKey: "optTweakCopy" },
                 { value: "layout", labelKey: "optTweakLayout" },
-                { value: "toggles", labelKey: "optTweakToggles" },
+                { value: "toggle", labelKey: "optTweakToggles" },
               ],
             },
             { id: "contentMust", type: "textarea", labelKey: "qContentMust", hintKey: "qHintContentMust" },
@@ -2214,6 +2214,28 @@ window.__ModuleLoader__.load({
       return Number.isFinite(numeric) ? clamp(numeric, 0, 100, 50) : 50
     }
 
+    /** The host question bank uses Chinese option values; the fallback bank uses a 0–100 slider. Accept both. */
+    function rangeOptionToLabel(value) {
+      const text = String(value === undefined || value === null ? "" : value).trim()
+      const chinese = { "基础→进阶": "basic", "规则→前卫": "balanced", "保守→实验": "avant-garde" }
+      if (chinese[text]) return chinese[text]
+      if (text === "basic" || text === "balanced" || text === "avant-garde" || text === "bold") return text === "bold" ? "avant-garde" : text
+      const numeric = Number(text)
+      return Number.isFinite(numeric) ? rangeValueToLabel(numeric) : "balanced"
+    }
+
+    /** Canonical range label -> the host bank Chinese option value (used to prefill 补问). */
+    function rangeLabelToOption(label) {
+      const normalized = rangeOptionToLabel(label)
+      const options = { basic: "基础→进阶", balanced: "规则→前卫", "avant-garde": "保守→实验" }
+      return options[normalized] || options.basic
+    }
+
+    /** The host bank calls the switch family "toggle"; older intake rows may say "toggles". */
+    function tweakId(value) {
+      return String(value) === "toggles" ? "toggle" : String(value)
+    }
+
     function answersToBrief(answers) {
       const src = answers || {}
       const constraints = [src.brandConstraints, src.contentAvoid].map((value) => String(value || "").trim()).filter(Boolean).join("\n")
@@ -2246,10 +2268,10 @@ window.__ModuleLoader__.load({
         brandConstraints: String(src.brandConstraints || "").trim().slice(0, 2000),
         variations: {
           count,
-          dimensions: safeArray(src.dimensions).map(String).slice(0, 8),
-          range: rangeValueToLabel(src.range === undefined ? 50 : src.range),
+          dimensions: safeArray(safeArray(src.dimensions).length > 0 ? src.dimensions : src.variationDimensions).map(String).slice(0, 8),
+          range: rangeOptionToLabel(src.range !== undefined ? src.range : src.variationRange !== undefined ? src.variationRange : 50),
         },
-        tweaks: safeArray(src.tweaks).map(String).slice(0, 8),
+        tweaks: safeArray(src.tweaks).map(tweakId).filter((value, index, list) => value && list.indexOf(value) === index).slice(0, 8),
         contentMust: String(src.contentMust || "").trim().slice(0, 2000),
         contentAvoid: String(src.contentAvoid || "").trim().slice(0, 2000),
         deliverables: safeArray(src.deliverables).map(String).slice(0, 8),
@@ -2272,9 +2294,11 @@ window.__ModuleLoader__.load({
         references: safeArray(src.references).join("\n"),
         brandConstraints: String(src.brandConstraints || ""),
         variationsCount: String(variations.count || 3),
-        dimensions: safeArray(variations.dimensions),
+        dimensions: safeArray(variations.dimensions).map(String),
+        variationDimensions: safeArray(variations.dimensions).map(String),
         range: rangeLabelToValue(variations.range),
-        tweaks: safeArray(src.tweaks),
+        variationRange: rangeLabelToOption(variations.range),
+        tweaks: safeArray(src.tweaks).map(tweakId),
         contentMust: String(src.contentMust || ""),
         contentAvoid: String(src.contentAvoid || ""),
         deliverables: safeArray(src.deliverables),
@@ -2346,6 +2370,7 @@ window.__ModuleLoader__.load({
           color: "optTweakColor",
           type: "optTweakType",
           spacing: "optTweakSpacing",
+          toggle: "optTweakToggles",
           toggles: "optTweakToggles",
           html: "exportHtml",
           pdf: "exportPdf",

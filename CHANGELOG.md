@@ -2,6 +2,25 @@
 
 本项目遵循语义化版本。所有对外接口（工具名、路由、数据目录结构、项目记录字段）在 1.x 内保持稳定。
 
+## 1.3.1
+
+发布工程与真实浏览器 e2e；修复 host 问题库与客户端答案键不一致造成的变体信息丢失。业务工具/路由无破坏性变更。
+
+### 修复
+
+- 开始向导在 host 问题库下丢失「变体维度 / 跨度」：`answersToIntake` / `answersFromIntake` 现在同时接受 `variationDimensions` / `variationRange`（host）与 `dimensions` / `range`（fallback 滑杆），跨度在中文选项、0–100 数值与 `basic/balanced/avant-garde` 之间归一；`toggle` / `toggles` 归一后去重，补问预填同时兼容两套问题 id。
+
+### 新增
+
+- `test/integration/wizard-handoff.test.mjs` + `test/fixtures/e2e/wizard-harness.html`：真实 Chrome 点击 6 步向导（shipped `client.js` 的真实状态机、真实问题库、真实 `POST /api/projects`），断言 clipboard === prompt、已确认信息 / 追问项 / 流程指令、`layout.selectPanel(null)`、toast 文案与 intake 持久化；随后从 prompt 解析 projectId（模拟粘贴交接），写入 `good.html` 三档变体并活体 `design_check`，断言 **96 / A**。
+- `.github/workflows/release.yml`：tag 推送触发；`npm run check` → `npm test` → `npm run test:integration` → `scripts/verify-release.mjs` 产物校验 → 上传 `release-report.json` + `client.js`；任一步失败即阻断。
+- `scripts/verify-release.mjs`：tag/版本/annotated/commit/main、生成物一致性、必需文件、npm pack 内容、密钥扫描等 13 项检查，输出机器可读报告。
+- `docs/RELEASE-v1.3.0.md`：v1.3.0 GitHub Release notes（三个真实缺陷修复、CI 记录、可复现步骤；不发布 npm）。
+
+### 验证
+
+- 单元测试 **271/271**；真实浏览器集成 **10/10**（含新 e2e，三变体 96 / A）。
+- release verifier 对 `v1.3.1` 本地运行 13/13；GitHub Release workflow 在 tag 上复跑同一门禁。
 ## 1.3.0
 
 开始 / 提问：对齐 Claude Design 的入口流程。v1.3 在总览加入 6 步开始向导，把答案写进结构化 intake；agent 新增 `design_intake`，新/含糊请求先问 ≤8 个问题再 `design_start`。规格见 `docs/FLOW.md`。
