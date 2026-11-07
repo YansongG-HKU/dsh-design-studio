@@ -1,0 +1,9 @@
+{
+  "meta": {
+    "title": "Design studio",
+    "description": "Build three graded HTML design variants on a real canvas, tweak them live, check accessibility and typography, then export HTML, PDF or PPTX."
+  },
+  "panel": {
+    "label": "Design studio"
+  }
+}

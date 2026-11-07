@@ -1,0 +1,12 @@
+# dsh-design-studio bundle layer.
+#
+# One Host plugin row. The Host half owns the project store, the headless probe,
+# the quality audits, the exports, the `design_*` agent tools and the loopback
+# panel routes. The Client half (declared through `dsh.client`) renders the
+# sidebar panel and calls the same Host service — one source of truth.
+- insert:
+    - id: dsh-design-studio
+      name: dsh-design-studio
+      config:
+        viewports: [1440, 768, 375]
+        openStates: false

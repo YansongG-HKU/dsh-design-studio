@@ -1,0 +1,20 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+.idea/
+.vscode/
+
+# Node
+node_modules/
+npm-debug.log*
+pnpm-debug.log*
+
+# Local-only implementation contract (contains developer absolute paths)
+CONTRACT.md
+
+# Local evidence / scratch
+_scratch/
+.tmp/
+exports/

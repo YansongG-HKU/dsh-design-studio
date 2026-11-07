@@ -1,0 +1,9 @@
+{
+  "meta": {
+    "title": "设计台",
+    "description": "在画布上用真实 HTML 生成三档设计变体，实时调参并按无障碍与排版规则质检，再导出 HTML、PDF 或 PPTX。"
+  },
+  "panel": {
+    "label": "设计台"
+  }
+}

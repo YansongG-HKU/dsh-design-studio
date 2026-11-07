@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>码头值班 · 示例页</title>
+<style>
+  :root { --paper: #f4f0e6; --ink: #1a1c1e; --muted: #565b56; --accent: #a8401c; --line: #d7d0bf; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--paper); color: var(--ink); font-family: "Corbel", "Segoe UI", "Microsoft YaHei", sans-serif; font-size: 16px; line-height: 1.55; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
+  header { border-bottom: 1px solid var(--line); }
+  nav { display: flex; align-items: center; gap: 24px; height: 64px; }
+  nav b { font-family: "Palatino Linotype", Georgia, "SimSun", serif; font-size: 20px; }
+  nav a { margin-left: auto; color: var(--muted); text-decoration: none; font-size: 15px; }
+  main { padding: 64px 0; }
+  h1 { font-family: "Palatino Linotype", Georgia, "SimSun", serif; font-size: 56px; line-height: 1.06; max-width: 16ch; }
+  h1 em { color: var(--accent); font-style: italic; }
+  p.lede { color: var(--muted); font-size: 18px; max-width: 46ch; margin-top: 24px; }
+  .btn { display: inline-flex; align-items: center; min-height: 44px; padding: 12px 24px; background: var(--accent); color: #fff8ef; text-decoration: none; font-weight: 600; margin-top: 32px; }
+  .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 64px; border-top: 1px solid var(--line); padding-top: 24px; }
+  .row h2 { font-family: "Palatino Linotype", Georgia, "SimSun", serif; font-size: 22px; margin-bottom: 8px; }
+  .row p { color: var(--muted); font-size: 15px; }
+  footer { border-top: 1px solid var(--line); padding: 24px 0; color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<header><div class="wrap"><nav><b>码头值班</b><a href="#row">产品说明</a></nav></div></header>
+<main><div class="wrap">
+  <h1>潮位、窗口与<em>交接</em>，在一块屏上完成。</h1>
+  <p class="lede">为小型港口的值班室设计：结论在前，数据在后，交班时一条链接带走全部上下文。</p>
+  <a class="btn" href="#row">查看示例值班表</a>
+  <div class="row" id="row">
+    <section><h2>当天窗口</h2><p>按吃水与安全余量自动换算可通航时段，临界时刻提前两小时标出。</p></section>
+    <section><h2>数据可信度</h2><p>采样缺口直接标注在曲线上，不用平滑曲线掩盖。</p></section>
+    <section><h2>交接摘要</h2><p>换班时生成未处理告警与下一次临界时刻，不需要口头复述。</p></section>
+  </div>
+</div></main>
+<footer><div class="wrap">示例页面 · 仅用于插件测试</div></footer>
+<script>
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{ "accentColor": "#a8401c", "density": 1 }/*EDITMODE-END*/;
+window.__dsApplyTweaks = function (edits) {
+  const root = document.documentElement;
+  if (typeof edits.accentColor === "string") root.style.setProperty("--accent", edits.accentColor);
+  if (typeof edits.density === "number") root.style.setProperty("--density", String(edits.density));
+};
+window.addEventListener("message", function (event) {
+  if (!event.data || event.source !== window.parent) return;
+  if (event.data.type === "__activate_edit_mode") document.body.dataset.editMode = "on";
+  else if (event.data.type === "__deactivate_edit_mode") delete document.body.dataset.editMode;
+  else if (event.data.type === "__edit_mode_set_keys" && event.data.edits) window.__dsApplyTweaks(event.data.edits);
+});
+try { window.parent.postMessage({ type: "__edit_mode_available" }, "*"); } catch (err) {}
+window.__dsApplyTweaks(TWEAK_DEFAULTS);
+</script>
+</body>
+</html>

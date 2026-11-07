@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>潮汐季报 · 三页演示</title>
+<style>
+  :root {
+    --paper: #f4efe4;
+    --ink: #171a1c;
+    --muted: #555b52;
+    --accent: #a8401c;
+    --rule: #d8d0be;
+    --serif: "Iowan Old Style", "Songti SC", Georgia, serif;
+    --mono: "Cascadia Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #2a2a2a; color: var(--ink); }
+  body { font-family: var(--serif); }
+  .screen {
+    width: 1920px;
+    height: 1080px;
+    background: var(--paper);
+    position: relative;
+    overflow: hidden;
+    padding: 96px 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    page-break-after: always;
+  }
+  .eyebrow { font-family: var(--mono); font-size: 26px; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; }
+  h1 { font-size: 128px; line-height: 1.02; letter-spacing: -0.03em; margin: 32px 0 0; font-weight: 600; }
+  h2 { font-size: 64px; line-height: 1.1; margin: 0 0 32px; font-weight: 600; }
+  p { font-size: 30px; line-height: 1.55; color: var(--muted); margin: 0 0 20px; max-width: 1180px; }
+  .footer { font-family: var(--mono); font-size: 24px; color: var(--muted); display: flex; justify-content: space-between; border-top: 2px solid var(--rule); padding-top: 24px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px; }
+  .cell { border-top: 4px solid var(--ink); padding-top: 24px; }
+  .cell strong { display: block; font-size: 72px; line-height: 1.05; margin-bottom: 12px; }
+  .cell span { font-family: var(--mono); font-size: 24px; color: var(--muted); }
+  @media print {
+    @page { size: 1920px 1080px; margin: 0; }
+    body { background: var(--paper); }
+    .screen { break-after: page; }
+  }
+</style>
+</head>
+<body>
+  <section class="screen" data-screen-label="01 封面">
+    <div>
+      <div class="eyebrow">Saltline · 潮汐季报</div>
+      <h1>把潮水<br>读成时间</h1>
+    </div>
+    <div class="footer"><span>2026 年秋季观测</span><span>01 / 03</span></div>
+  </section>
+  <section class="screen" data-screen-label="02 三组读数">
+    <div>
+      <h2>三组读数，一条潮线</h2>
+      <p>观测站每六分钟记录一次水位，本季有效样本 2,184 组，缺测集中在两次台风封航期间。</p>
+      <div class="grid">
+        <div class="cell"><strong>2,184</strong><span>有效样本</span></div>
+        <div class="cell"><strong>1.87 m</strong><span>最高潮位</span></div>
+        <div class="cell"><strong>0.42 m</strong><span>最低潮位</span></div>
+      </div>
+    </div>
+    <div class="footer"><span>第 2 页</span><span>02 / 03</span></div>
+  </section>
+  <section class="screen" data-screen-label="03 结语">
+    <div>
+      <h2>下一季的工作</h2>
+      <p>补齐两次封航缺测，把潮位与风场的采样对齐到同一时间轴，并公开原始记录。</p>
+    </div>
+    <div class="footer"><span>Saltline 观测组</span><span>03 / 03</span></div>
+  </section>
+</body>
+</html>

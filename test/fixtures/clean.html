@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>潮汐观测 · 沿海气象站</title>
+<style>
+  :root {
+    --paper: #f4efe4;
+    --paper-2: #fbf8f0;
+    --ink: #171a1c;
+    --muted: #555b52;
+    --accent: #a8401c;
+    --rule: #d8d0be;
+    --serif: "Iowan Old Style", "Songti SC", Georgia, serif;
+    --sans: "Corbel", "PingFang SC", "Segoe UI", sans-serif;
+    --mono: "Cascadia Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  header {
+    padding: 96px 120px 64px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: 64px;
+    line-height: 1.05;
+    letter-spacing: -1.6px;
+    font-weight: 600;
+    margin: 24px 0 0;
+    max-width: 900px;
+  }
+  main {
+    padding: 64px 120px 96px;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 64px;
+  }
+  section { margin-bottom: 64px; }
+  h2 {
+    font-family: var(--serif);
+    font-size: 32px;
+    line-height: 1.2;
+    margin: 0 0 24px;
+    font-weight: 600;
+  }
+  p { margin: 0 0 16px; max-width: 720px; color: var(--muted); }
+  .lead { font-size: 21px; color: var(--ink); }
+  blockquote {
+    margin: 32px 0;
+    padding-left: 24px;
+    border-left: 2px solid var(--accent);
+    font-family: var(--serif);
+    font-size: 24px;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  aside {
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 32px;
+    align-self: start;
+  }
+  aside dt { font-family: var(--mono); font-size: 14px; color: var(--muted); margin-top: 16px; }
+  aside dd { margin: 4px 0 0; font-size: 17px; }
+  a { color: var(--accent); }
+  footer {
+    padding: 48px 120px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+  }
+  button {
+    font: inherit;
+    font-family: var(--sans);
+    background: var(--accent);
+    color: #fffdf7;
+    border: 0;
+    border-radius: 4px;
+    padding: 16px 24px;
+    cursor: pointer;
+  }
+  button:hover { background: #8d3517; }
+  img { max-width: 100%; display: block; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">Saltline Observatory · 2026 秋</div>
+    <h1>把潮水读成时间：一座沿海气象站的六年记录</h1>
+    <p class="lead">每六分钟一次水位读数，六年下来是一万七千条记录。我们把这些数字整理成可以读的潮线。</p>
+  </header>
+  <main>
+    <div>
+      <section>
+        <h2>为什么是六分钟</h2>
+        <p>潮汐的主要周期是十二小时二十五分钟。六分钟一次的采样刚好能在每个周期里留下足够密的点，又不至于让传感器过度耗电。</p>
+        <p>观测站使用两套独立的水位计，任何一套连续三分钟无读数，值班员会收到提醒并人工复核。</p>
+        <blockquote>把观测频率定在六分钟，是精度和电力之间的一次妥协，六年里它工作得很好。</blockquote>
+      </section>
+      <section>
+        <h2>缺测与封航</h2>
+        <p>本季有效样本二千一百八十四组，缺测集中在两次台风封航期间。缺测不会被插值填补，图上会留下真实的空白。</p>
+      </section>
+      <section>
+        <h2>原始记录公开</h2>
+        <p>每一季的原始读数以 CSV 形式公开，包含时间戳、水位、风向与仪器编号，供任何人复核。</p>
+        <button type="button">下载本季原始数据</button>
+      </section>
+    </div>
+    <aside>
+      <h2>观测站</h2>
+      <dl>
+        <dt>位置</dt>
+        <dd>东经 121° 32′，北纬 31° 08′</dd>
+        <dt>仪器</dt>
+        <dd>雷达水位计 ×2，超声波风速计 ×1</dd>
+        <dt>采样</dt>
+        <dd>每 6 分钟，全年无休</dd>
+        <dt>开放</dt>
+        <dd>周二至周日，10:00–17:00</dd>
+      </dl>
+    </aside>
+  </main>
+  <footer>
+    <span>Saltline Observatory</span>
+    <span>记录整理：观测组 · 2026</span>
+  </footer>
+</body>
+</html>

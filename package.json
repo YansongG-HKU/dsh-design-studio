@@ -1,0 +1,79 @@
+{
+  "name": "dsh-design-studio",
+  "version": "1.3.0",
+  "private": true,
+  "description": "设计台（Design Studio）：Claude Design 级别的设计能力移植到 DSH——Figma 级编辑器界面（三栏布局/图层树/浮动工具条/画板视图/命令面板/标尺参考线/深浅主题）、设计系统与语境采集、三档变体 HTML 设计、可视画布直接编辑、内联评论、Tweaks 实时调参、无障碍与对比度等质检评分、HTML/ZIP/PDF/PNG/PPTX 导出、版本管理。纯 Node，零第三方运行时依赖。",
+  "license": "MIT",
+  "author": "YansongG-HKU",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "lib",
+    "src",
+    "scripts",
+    "client.js",
+    "locale",
+    "cordis.patch.yml",
+    "icon.svg",
+    "docs",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build:client": "node scripts/build-client.mjs",
+    "check": "node --check index.js && node scripts/build-client.mjs --check",
+    "test": "node --test test/unit/*.test.mjs",
+    "test:integration": "node --test test/integration/*.test.mjs"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "design",
+    "design-studio",
+    "claude-design",
+    "ui-design",
+    "prototype",
+    "design-system",
+    "a11y",
+    "export",
+    "pptx"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YansongG-HKU/dsh-design-studio.git"
+  },
+  "homepage": "https://github.com/YansongG-HKU/dsh-design-studio#readme",
+  "bugs": {
+    "url": "https://github.com/YansongG-HKU/dsh-design-studio/issues"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-renderer",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar"
+      ],
+      "manifestVersion": 1
+    }
+  },
+  "engines": {
+    "node": ">=22",
+    "dsh": ">=0.2.2-rc.1"
+  }
+}
