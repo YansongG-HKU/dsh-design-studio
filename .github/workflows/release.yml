@@ -28,6 +28,9 @@ jobs:
       - name: Fetch main for tag ancestry check
         run: git fetch --no-tags origin main
 
+      - name: Fetch annotated tag object
+        run: git fetch --force origin "refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
+
       - name: Client artifact freshness
         run: npm run check
 
