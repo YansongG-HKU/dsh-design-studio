@@ -178,7 +178,7 @@ test('createProject seeds folders, DESIGN.md and the kind scaffold', async (t) =
   const overview = await service.overview()
   assert.equal(overview.counts.projects, 1)
   assert.equal(overview.counts.checked, 0)
-  assert.equal(overview.version, '1.3.1')
+  assert.equal(overview.version, '1.3.2')
 
   const rows = await service.listProjects()
   assert.equal(rows.length, 1)
@@ -619,7 +619,7 @@ test('diagnostics reports store, browser and checks', async (t) => {
   const project = await makeProject(service)
   await waitJob(service, service.startCheck(project.id))
   const diagnostics = await service.diagnostics()
-  assert.equal(diagnostics.version, '1.3.1')
+  assert.equal(diagnostics.version, '1.3.2')
   assert.equal(diagnostics.dataDir, dir)
   assert.equal(diagnostics.browser.available, true)
   assert.ok(diagnostics.checks.rounds >= 1)

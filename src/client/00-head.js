@@ -20,7 +20,7 @@ window.__ModuleLoader__.load({
     const NS = "dsh-design-studio"
     const API_BASE = "/dsh-design-studio"
     const REQ_HEADER = "x-dsh-design-studio"
-    const VERSION = "1.3.1"
+    const VERSION = "1.3.2"
     const LANG_KEY = "dsh-design-studio.lang"
 
     // Canvas bridge (§5): inbound messages say "ds-canvas", outbound "ds-panel".

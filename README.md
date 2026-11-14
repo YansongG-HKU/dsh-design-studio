@@ -6,7 +6,7 @@
 
 - 包名 / loader 行 / 客户端模块 id：`dsh-design-studio`
 - 仓库：<https://github.com/YansongG-HKU/dsh-design-studio>
-- 版本 `1.3.1`（开始向导 + intake + 需求动线 + UI v2 编辑器；含发布门禁与真实浏览器 e2e），要求 Node.js ≥ 22、DSH ≥ 0.2.2-rc.1
+- 版本 `1.3.2`（开始向导 + intake + 需求动线 + UI v2 编辑器；含发布门禁与真实浏览器 e2e），要求 Node.js ≥ 22、DSH ≥ 0.2.2-rc.3
 - 纯 Node ESM，零第三方运行时依赖
 - 数据目录：`<DSH_HOME>/design-studio`（`DSH_HOME` 默认 `~/.dsh`）
 - 面板路由前缀：`/dsh-design-studio`，请求头 `x-dsh-design-studio: 1`
@@ -116,7 +116,7 @@ plugin_manager install_bundle({ target: "<插件目录>" })
 - 工具栏/主区出现设计台面板
 - agent 侧获得 11 个 `design_*` 工具与一段 system-prompt 说明
 
-若面板不出现：确认 DSH ≥ 0.2.2-rc.1、Node.js ≥ 22，然后重启会话；Host 插件在初始化失败时保持 inert 并写 warn 日志，不会弄崩 DSH。
+若面板不出现：确认 DSH ≥ 0.2.2-rc.3、Node.js ≥ 22，然后重启会话；Host 插件在初始化失败时保持 inert 并写 warn 日志，不会弄崩 DSH。
 
 ## Agent 快速开始
 
